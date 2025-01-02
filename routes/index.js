@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
+const { login, refreshAccessToken } = require('../controllers/auth.controller');
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+router.post('/login', login);
+router.post('/refresh', refreshAccessToken);
 
 module.exports = router;
