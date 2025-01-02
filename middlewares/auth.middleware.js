@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = proccess.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const auth = (roles = []) => {
     // Convert single role to array if string is provided
@@ -51,4 +51,4 @@ const auth = (roles = []) => {
     };
 };
 
-module.exports = auth;
+module.exports = {auth};
