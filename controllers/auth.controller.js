@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const {Users, Admin} = require("../models");
+const {Users, Admin, Pendaftar} = require("../models");
 require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -107,4 +107,30 @@ const refreshAccessToken = async (req, res) => {
   }
 };
 
-module.exports = { login, refreshAccessToken };
+const registerUser = async (req, res) => {
+  try {
+    const { email, nim, nama, universitas, jurusan } = req.body;
+  
+    const existingUser = await Pendaftar.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email sudah terdaftar' });
+    }
+  
+      const newUser = await Pendaftar.create({
+        id_admin: 1,
+        email,
+        nim,
+        nama,
+        universitas,
+        jurusan,
+      });
+  
+      res.status(201).json({ message: 'Pendaftaran berhasil, menunggu persetujuan admin' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Terjadi kesalahan' });
+    }
+  };
+
+
+module.exports = { login, refreshAccessToken, registerUser };
