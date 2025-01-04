@@ -18,18 +18,22 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'id_users',
         as: 'biodata',
       });
+      Users.hasMany(models.Otp, {
+        foreignKey: 'id_users',
+        as: 'otp' 
+      })
     }
   }
   Users.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
       id_pendaftar: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: 'pendaftar',
@@ -45,9 +49,14 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       role: {
-        type: DataTypes.ENUM('admin', 'user'),
+        type: DataTypes.STRING,
         allowNull: false,
         defaultValue: 'user',
+      },
+      status: {
+        type: DataTypes.ENUM('Aktif', 'Selesai'),
+        allowNull: false,
+        defaultValue: 'Aktif'
       },
       createdAt: {
         type: DataTypes.DATE,

@@ -1,17 +1,20 @@
 'use strict';
+
+const { DataTypes } = require('sequelize');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('users', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4
       },
       id_pendaftar: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: {
           model: 'pendaftar',
           key: 'id'
@@ -27,8 +30,13 @@ module.exports = {
       },
       role: {
         allowNull: false,
-        type: Sequelize.ENUM('admin', 'user'),
+        type: Sequelize.STRING,
         defaultValue: 'user'
+      },
+      status: {
+        allowNull: false,
+        type: DataTypes.ENUM('Aktif','Selesai'),
+        defaultValue: 'Aktif'
       },
       createdAt: {
         allowNull: false,

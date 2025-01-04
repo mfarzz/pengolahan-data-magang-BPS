@@ -21,7 +21,7 @@ const auth = (roles = []) => {
             }
 
             // Verifikasi token secara async
-            jwt.verify(token, JWT_SECRET, (err, decoded) => {
+            jwt.verify(token, JWT_SECRET, (err, user) => {
                 if (err) {
                     return res.status(401).json({ 
                         error: "Invalid token",
@@ -30,16 +30,15 @@ const auth = (roles = []) => {
                 }
 
                 // Periksa role jika ada
-                if (roles.length && !roles.includes(decoded.role)) {
+                if (roles.length && !roles.includes(user.role)) {
                     return res.status(403).json({ 
                         error: "Forbidden - You don't have permission to access this resource",
                         redirect: currentUrl,
-                        userRole: decoded.role
+                        userRole: user.role
                     });
                 }
-
-                // Tambahkan informasi pengguna ke request
-                req.user = decoded;
+                
+                req.user = user;
                 next();
             });
         } catch (error) {

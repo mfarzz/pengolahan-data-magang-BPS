@@ -1,16 +1,8 @@
 const { v4: uuidv4 } = require('uuid');
-const nodemailer = require('nodemailer');
-const { Pendaftar, Users } = require('../models');
+const { Pendaftar, Users, Biodata, RiwayatPendidikan, } = require('../models');
 const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: EMAIL_USER, 
-    pass: EMAIL_PASS,
-  },
-});
+const bcrypt = require('bcrypt');
+const { transporter } = require('../middlewares/transporter.middleware');
   
 const generateCredentials = () => {
   const username = 'user' + uuidv4().slice(0, 8); // username acak
@@ -32,12 +24,12 @@ const approveUser = async (req, res) => {
       
       // Generate username dan password
       const { username, password } = generateCredentials();
-  
+      const hashedPassword = await bcrypt.hash(password, 10);
       // Update status menjadi 'accepted' dan simpan username dan password\
       const createdUser = await Users.create({
         id_pendaftar: user.id,
         username,
-        password,
+        password: hashedPassword,
       });
   
       // Kirim email ke pengguna
@@ -87,6 +79,78 @@ const rejectUser = async (req, res) => {
     }
   };
 
+const tampilUsers = async (req, res) => {
+    try {
+      const users = await Pendaftar.findAll({
+        where: {
+          status: 'approved'  // Hanya ambil data yang statusnya 'approved'
+        },
+        include: 
+          {
+            model: Users,
+            as: 'users',
+            attributes: ['status', 'id'],
+            include: {
+              model: Biodata,
+              as: 'biodata',
+              attributes: ['unit_kerja'],
+            }
+          },
+      });
   
+      res.status(200).json({ users });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Terjadi kesalahan' });
+    }
+}
+
+const detailUsers = async (req, res) => {
+    try {
+      const { userId } = req.params;
   
-  module.exports = { approveUser, rejectUser };
+      const user = await Pendaftar.findByPk(userId, {
+        where: {
+          status: 'approved',  // Hanya ambil data yang statusnya 'approved'
+        },
+        include: [
+          {
+            model: Users,
+            as: 'users',
+            attributes: ['id'],
+            include: {
+              model: Biodata,
+              as: 'biodata',
+              include: {
+                model: RiwayatPendidikan,
+                as: 'riwayat_pendidikan',
+              }
+            },
+          },
+        ],
+      });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User tidak ditemukan' });
+      }
+
+      if(!user.users){
+        return res.status(404).json({ message: 'User tidak ditemukan' });
+      }
+
+      if(!user.biodata){
+        return res.status(404).json({ message: 'Biodata tidak ditemukan' });
+      }
+
+      if(!user.biodata.riwayat_pendidikan){
+        return res.status(404).json({ message: 'Riwayat Pendidikan tidak ditemukan' });
+      }
+  
+      res.status(200).json({ user });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Terjadi kesalahan' });
+    }
+  }
+
+module.exports = { approveUser, rejectUser, tampilUsers, detailUsers };

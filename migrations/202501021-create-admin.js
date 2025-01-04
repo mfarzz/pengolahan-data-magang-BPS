@@ -5,9 +5,9 @@ module.exports = {
     await queryInterface.createTable('admin', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4
       },
       username: {
         allowNull: false,
@@ -19,7 +19,8 @@ module.exports = {
       },
       role: {
         allowNull: false,
-        type: Sequelize.ENUM('admin', 'user')
+        type: Sequelize.STRING,
+        defaultValue: 'admin'
       },
       createdAt: {
         allowNull: false,

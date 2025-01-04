@@ -15,7 +15,7 @@ const login = async (req, res) => {
 
       // Jika tidak ditemukan di admin, coba cari di tabel users
       if (!user) {
-          user = await Users.findOne({ where: { username } });
+          user = await Users.findOne({ where: { username, status: "Aktif" } });
       }
 
       if (!user) {
@@ -130,7 +130,27 @@ const registerUser = async (req, res) => {
       console.error(err);
       res.status(500).json({ message: 'Terjadi kesalahan' });
     }
-  };
+};
 
+const logout = async (req, res) => {
+  try {
+      // Hapus refresh token dari cookie
+      res.clearCookie('refreshToken', {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "Strict"
+      });
 
-module.exports = { login, refreshAccessToken, registerUser };
+      res.status(200).json({
+          message: "Logout successful"
+      });
+  } catch (error) {
+      console.error("Logout Error:", error);
+      res.status(500).json({
+          error: "Error during logout",
+          details: error.message || "An unexpected error occurred"
+      });
+  }
+};
+
+module.exports = { login, refreshAccessToken, registerUser, logout };
