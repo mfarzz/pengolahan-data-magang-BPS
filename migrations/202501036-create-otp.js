@@ -2,32 +2,33 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('riwayat_pendidikan', {
+    await queryInterface.createTable('otps', {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4
       },
-      id_biodata: {
+      id_users: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'biodata',
+          model: 'users',
           key: 'id'
         }
       },
-      nama_sekolah: {
+      kode: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      tahun_tamat: {
-        type: Sequelize.STRING,
+      expiredAt: {
+        type: Sequelize.DATE,
         allowNull: false
       },
-      tempat: {
-        type: Sequelize.STRING,
-        allowNull: false
+      status: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       },
       createdAt: {
         allowNull: false,
@@ -40,6 +41,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('riwayat_pendidikan');
+    await queryInterface.dropTable('otps');
   }
 };

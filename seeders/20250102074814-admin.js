@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const { v4: uuidv4 } = require('uuid');
 
 'use strict';
 
@@ -7,6 +8,7 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('admin', [
       {
+        id: uuidv4(),
         username: 'admin',
         password: await bcrypt.hash('123', 10),
         role: 'admin',

@@ -5,13 +5,13 @@ module.exports = {
     await queryInterface.createTable('biodata', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4
       },
       id_users: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: {
           model: 'users',
           key: 'id'
@@ -20,10 +20,6 @@ module.exports = {
       nomor_peserta: {
         type: Sequelize.STRING,
         unique: true
-      },
-      nama_lengkap: {
-        allowNull: false,
-        type: Sequelize.STRING
       },
       nama_panggilan: {
         allowNull: false,
@@ -46,7 +42,6 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       IP: {
-        allowNull: false,
         type: Sequelize.FLOAT
       },
       nama_ibu: {
@@ -101,6 +96,9 @@ module.exports = {
         type: Sequelize.ENUM('Umum', 'Teknis', 'IT')
       },
       sertifkat: {
+        type: Sequelize.STRING
+      },
+      foto: {
         type: Sequelize.STRING
       },
       createdAt: {

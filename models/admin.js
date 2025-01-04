@@ -10,18 +10,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here if needed
-      Admin.hasMany(models.Pendaftar, {
-        foreignKey: 'id_admin',
-        as: 'pendaftar',
-      });
     }
   }
   Admin.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
       username: {
@@ -33,8 +29,9 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       role: {
-        type: DataTypes.ENUM('admin', 'user'),
+        type: DataTypes.STRING,
         allowNull: false,
+        defaultValue: 'admin',
       },
       createdAt: {
         type: DataTypes.DATE,

@@ -23,13 +23,13 @@ module.exports = (sequelize, DataTypes) => {
   Biodata.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
       id_users: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: 'users',
@@ -39,10 +39,6 @@ module.exports = (sequelize, DataTypes) => {
       nomor_peserta: {
         type: DataTypes.STRING,
         unique: true,
-      },
-      nama_lengkap: {
-        type: DataTypes.STRING,
-        allowNull: false,
       },
       nama_panggilan: {
         type: DataTypes.STRING,
@@ -66,7 +62,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       IP: {
         type: DataTypes.FLOAT,
-        allowNull: false,
       },
       nama_ibu: {
         type: DataTypes.STRING,
@@ -120,6 +115,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM('Umum', 'Teknis', 'IT'),
       },
       sertifkat: {
+        type: DataTypes.STRING,
+      },
+      foto: {
         type: DataTypes.STRING,
       },
       createdAt: {

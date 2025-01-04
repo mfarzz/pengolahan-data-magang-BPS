@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
-const { approveUser, rejectUser } = require('../controllers/admin.controller');
+const { approveUser, rejectUser, tampilUsers, detailUsers } = require('../controllers/admin.controller');
 const { auth } = require('../middlewares/auth.middleware');
 
-router.put('/approve/:userId', approveUser, auth('admin'));
-router.put('/reject/:userId', rejectUser, auth('admin'));
+router.put('/approve/:userId', auth('admin'), approveUser);
+router.put('/reject/:userId', auth('admin'), rejectUser);
+router.get('/list-users', auth('admin'), tampilUsers);
+router.get('/detail-users/:userId', auth('admin'), detailUsers);
 
 module.exports = router;

@@ -10,10 +10,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Pendaftar.belongsTo(models.Admin, {
-        foreignKey: 'id_admin',
-        as: 'admin',
-      });
       Pendaftar.hasOne(models.Users, {
         foreignKey: 'id_pendaftar',
         as: 'users',
@@ -23,18 +19,10 @@ module.exports = (sequelize, DataTypes) => {
   Pendaftar.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
-      },
-      id_admin: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'admin',
-          key: 'id',
-        },
       },
       email: {
         type: DataTypes.STRING,

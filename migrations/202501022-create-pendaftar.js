@@ -5,17 +5,9 @@ module.exports = {
     await queryInterface.createTable('pendaftar', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
-      },
-      id_admin: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'admin',
-          key: 'id'
-        }
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4
       },
       email: {
         allowNull: false,

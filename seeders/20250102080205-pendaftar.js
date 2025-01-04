@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require('uuid');
+
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
@@ -5,8 +7,8 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert('pendaftar', [
       {
-        id_admin: 1, // Pastikan ID admin ini sesuai dengan data di tabel `admin`.
-        email: 'john.doe@example.com',
+        id: uuidv4(),
+        email: 'mfarizbtsa@gmail.com',
         nim: '12345678',
         nama: 'John Doe',
         universitas: 'Universitas Indonesia',
@@ -16,7 +18,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        id_admin: 1, // Pastikan ID admin ini sesuai dengan data di tabel `admin`.
+        id: uuidv4(),
         email: 'jane.smith@example.com',
         nim: '87654321',
         nama: 'Jane Smith',
@@ -27,7 +29,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        id_admin: 1, // Pastikan ID admin ini sesuai dengan data di tabel `admin`.
+        id: uuidv4(),
         email: 'michael.jones@example.com',
         nim: '11223344',
         nama: 'Michael Jones',
