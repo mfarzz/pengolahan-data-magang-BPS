@@ -79,6 +79,19 @@ const rejectUser = async (req, res) => {
     }
   };
 
+const tampilPendaftar = async (req, res) => {
+    try {
+      const users = await Pendaftar.findAll({
+        
+      });
+  
+      res.status(200).json({ users });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Terjadi kesalahan' });
+    }
+}
+
 const tampilUsers = async (req, res) => {
     try {
       const users = await Pendaftar.findAll({
@@ -104,6 +117,45 @@ const tampilUsers = async (req, res) => {
       res.status(500).json({ message: 'Terjadi kesalahan' });
     }
 }
+const hapusUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Cari pengguna di tabel Users berdasarkan userId
+    const user = await Users.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Peserta tidak ditemukan' });
+    }
+
+    // Hapus data terkait di tabel 'biodata'
+    await Biodata.destroy({
+      where: { id_users: userId },
+    });
+
+    // Hapus data pengguna dari tabel Users
+    await Users.destroy({
+      where: { id: userId },
+    });
+
+    // Jika ingin memperbarui status di tabel Pendaftar
+    const pendaftar = await Pendaftar.findOne({
+      where: { id: user.id_pendaftar },
+    });
+
+    if (pendaftar) {
+      pendaftar.status = 'rejected'; // Perbarui status menjadi 'rejected' atau sesuai kebutuhan
+      await pendaftar.save();
+    }
+
+    res.status(200).json({ message: 'Peserta berhasil dihapus' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Terjadi kesalahan' });
+  }
+};
+
+
 
 const detailUsers = async (req, res) => {
     try {
@@ -153,4 +205,4 @@ const detailUsers = async (req, res) => {
     }
   }
 
-module.exports = { approveUser, rejectUser, tampilUsers, detailUsers };
+module.exports = { approveUser, rejectUser,tampilPendaftar, tampilUsers, detailUsers, hapusUser };
