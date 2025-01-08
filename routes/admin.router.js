@@ -8,8 +8,8 @@ router.put('/reject/:userId', auth('admin'), rejectUser);
 router.get('/list-users', auth('admin'), tampilUsers);
 router.delete('/list-hapus/:userId', auth('admin'), hapusUser);
 router.get('/list-pendaftar', auth('admin'), tampilPendaftar);
-router.get('/detail-users/:userId', auth('admin'), detailUsers);
 router.get('/list-biodata', auth('admin'), listBiodata);
+router.get('/detail-users/:userId', auth('admin'), detailUsers);
 router.delete('/delete-biodata/:userId', auth('admin'), deleteBiodata);
 
 module.exports = router;
