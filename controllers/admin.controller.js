@@ -205,4 +205,42 @@ const detailUsers = async (req, res) => {
     }
   }
 
-module.exports = { approveUser, rejectUser,tampilPendaftar, tampilUsers, detailUsers, hapusUser };
+  const listBiodata = async (req, res) => {
+    try {
+      const biodata = await Biodata.findAll({
+        
+      });
+  
+      res.status(200).json({ biodata });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Terjadi kesalahan' });
+    }
+};
+
+const deleteBiodata = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+      // Cari biodata berdasarkan userId
+      const biodata = await Biodata.findByPk(userId);
+
+      if (!biodata) {
+          return res.status(404).json({ message: "Biodata not found for the given user ID" });
+      }
+
+      // Hapus biodata
+      await Biodata.destroy({
+          where: { id : userId }
+      });
+
+      return res.status(200).json({ message: "Biodata deleted successfully" });
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
+
+
+module.exports = { approveUser, rejectUser,tampilPendaftar, tampilUsers, detailUsers, hapusUser, listBiodata, deleteBiodata };
