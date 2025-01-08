@@ -3,6 +3,8 @@ const EMAIL_USER = process.env.EMAIL_USER;
 const bcrypt = require('bcrypt');
 const crypto = require("crypto");
 const { transporter } = require('../middlewares/transporter.middleware');
+const fs = require('fs');
+const path = require('path');
 
 const sendOtp = async (req, res) => {
     const userId = req.user.id
@@ -114,6 +116,7 @@ const addBiodata = async (req, res) => {
     const userId = req.user.id;
     const { nama_panggilan, tempat_lahir, tanggal_lahir, anak_ke, jumlah_saudara, IP, nama_ibu, pekerjaan_ibu, nama_ayah, 
         pekerjaan_ayah, agama, no_hp, alamat, alamat_domisili, alasan, jadwal_mulai, jadwal_selesai, keahlian, riwayat_pendidikan } = req.body;
+
     try {
         const user = await Users.findByPk(userId, {
             include: {
@@ -124,8 +127,8 @@ const addBiodata = async (req, res) => {
                     as: 'riwayat_pendidikan'
                 }
             }
-        })
-        
+        });
+
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -143,7 +146,7 @@ const addBiodata = async (req, res) => {
             let foto;
             if (req.file) {
                 const allowedMimeTypes = ['image/jpeg', 'image/png']; // Jenis file yang diizinkan
-                const maxFileSize = 50 * 1024; // Ukuran maksimal (2 MB)
+                const maxFileSize = 50 * 1024; // Ukuran maksimal (50 KB)
     
                 // Validasi jenis file
                 if (!allowedMimeTypes.includes(req.file.mimetype)) {
@@ -152,13 +155,10 @@ const addBiodata = async (req, res) => {
     
                 // Validasi ukuran file
                 if (req.file.size > maxFileSize) {
-                    return res.status(400).json({ message: "File size exceeds the maximum limit of 2 MB." });
+                    return res.status(400).json({ message: "File size exceeds the maximum limit of 50 KB." });
                 }
     
                 const directory = `uploads/users/${userId}`;
-                const fs = require('fs');
-                const path = require('path');
-     
                 // Ensure the directory exists
                 if (!fs.existsSync(directory)) {
                     fs.mkdirSync(directory, { recursive: true });
@@ -169,6 +169,19 @@ const addBiodata = async (req, res) => {
     
                 // Move the file to the user's directory
                 fs.renameSync(req.file.path, foto);
+            }
+
+            // Generate nomor peserta
+            const lastBiodata = await Biodata.findOne({
+                order: [['nomor_peserta', 'DESC']]
+            });
+
+            let nomorPeserta = '001'; // Default nomor peserta jika belum ada data
+            if (lastBiodata && lastBiodata.nomor_peserta) {
+                const lastNumber = parseInt(lastBiodata.nomor_peserta, 10);
+                if (!isNaN(lastNumber)) {
+                    nomorPeserta = String(lastNumber + 1).padStart(3, '0'); // Increment and pad to 3 digits
+                }
             }
 
             // Create biodata
@@ -193,6 +206,7 @@ const addBiodata = async (req, res) => {
                 jadwal_selesai,
                 keahlian,
                 foto,
+                nomor_peserta: nomorPeserta, // Simpan nomor peserta
             });
 
             // Bulk create educational history if provided
@@ -207,16 +221,15 @@ const addBiodata = async (req, res) => {
                 );
             }
 
-            return res.status(201).json({ message: "Biodata created successfully" });
+            return res.status(201).json({ message: "Biodata created successfully", nomor_peserta: nomorPeserta });
         }
         
-
     } catch (error) {
         return res.status(500).json({ message: 'Internal server error', error });
-        
     }
+};
 
-}
+
 
 
 module.exports = { sendOtp, resetPassword, addBiodata, tampilFormBiodata };
