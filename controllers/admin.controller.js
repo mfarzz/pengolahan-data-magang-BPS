@@ -183,18 +183,18 @@ const detailUsers = async (req, res) => {
       });
   
       if (!user) {
-        return res.status(404).json({ message: 'User tidak ditemukan' });
+        return res.status(404).json({ message: 'Pendaftar tidak ditemukan' });
       }
 
       if(!user.users){
         return res.status(404).json({ message: 'User tidak ditemukan' });
       }
 
-      if(!user.biodata){
+      if(!user.users.biodata){
         return res.status(404).json({ message: 'Biodata tidak ditemukan' });
       }
 
-      if(!user.biodata.riwayat_pendidikan){
+      if(!user.users.biodata.riwayat_pendidikan){
         return res.status(404).json({ message: 'Riwayat Pendidikan tidak ditemukan' });
       }
   
