@@ -218,6 +218,7 @@ const detailUsers = async (req, res) => {
     }
 };
 
+
 const deleteBiodata = async (req, res) => {
   const { userId } = req.params;
 
@@ -240,6 +241,8 @@ const deleteBiodata = async (req, res) => {
       return res.status(500).json({ message: "Internal server error", error });
   }
 };
+
+
 
 
 
