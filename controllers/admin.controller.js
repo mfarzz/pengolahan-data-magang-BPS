@@ -218,6 +218,67 @@ const detailUsers = async (req, res) => {
     }
 };
 
+const editBiodata = async (req, res) => {
+  const { userId } = req.params;
+  const { 
+    nama_panggilan, tempat_lahir, tanggal_lahir, anak_ke, jumlah_saudara, IP, nama_ibu, pekerjaan_ibu, 
+    nama_ayah, pekerjaan_ayah, agama, no_hp, alamat, alamat_domisili, alasan, jadwal_mulai, jadwal_selesai, 
+    keahlian, riwayat_pendidikan 
+  } = req.body;
+
+  try {
+    // Cari biodata berdasarkan userId
+    const biodata = await Biodata.findByPk(userId);
+
+    if (!biodata) {
+      return res.status(404).json({ message: "Biodata not found for the given user ID" });
+    }
+
+    // Update biodata dengan data yang baru
+    const updatedBiodata = await biodata.update({
+      nama_panggilan,
+      tempat_lahir,
+      tanggal_lahir,
+      anak_ke,
+      jumlah_saudara,
+      IP,
+      nama_ibu,
+      pekerjaan_ibu,
+      nama_ayah,
+      pekerjaan_ayah,
+      agama,
+      no_hp,
+      alamat,
+      alamat_domisili,
+      alasan,
+      jadwal_mulai,
+      jadwal_selesai,
+      keahlian,
+    });
+
+    // Update riwayat pendidikan jika ada
+    if (riwayat_pendidikan && riwayat_pendidikan.length > 0) {
+      // Hapus riwayat pendidikan lama
+      await RiwayatPendidikan.destroy({ where: { id_biodata: biodata.id } });
+
+      // Menambahkan riwayat pendidikan yang baru
+      await RiwayatPendidikan.bulkCreate(
+        riwayat_pendidikan.map(item => ({
+          id_biodata: updatedBiodata.id,
+          nama_sekolah: item.nama_sekolah,
+          tahun_lulus: item.tahun_lulus,
+          tempat: item.tempat,
+        }))
+      );
+    }
+
+    res.status(200).json({ message: "Biodata updated successfully", updatedBiodata });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error", error: err });
+  }
+};
+
 
 const deleteBiodata = async (req, res) => {
   const { userId } = req.params;
@@ -246,4 +307,4 @@ const deleteBiodata = async (req, res) => {
 
 
 
-module.exports = { approveUser, rejectUser,tampilPendaftar, tampilUsers, detailUsers, hapusUser, listBiodata, deleteBiodata };
+module.exports = { approveUser, rejectUser,tampilPendaftar, tampilUsers, detailUsers, hapusUser, listBiodata, editBiodata,deleteBiodata };
