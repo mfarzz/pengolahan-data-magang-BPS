@@ -37,8 +37,11 @@ const auth = (roles = []) => {
                         userRole: user.role
                     });
                 }
-                
-                req.user = user;
+
+                // Tambahkan user dan id_admin ke request
+                req.user = user; // Menyimpan seluruh data user
+                req.adminId = user.id; // Menyimpan id_admin yang ada di token
+
                 next();
             });
         } catch (error) {
@@ -50,4 +53,5 @@ const auth = (roles = []) => {
     };
 };
 
-module.exports = {auth};
+module.exports = { auth };
+

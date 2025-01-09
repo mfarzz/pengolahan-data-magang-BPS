@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { Pendaftar, Users, Biodata, RiwayatPendidikan, } = require('../models');
+const { Pendaftar, Users, Biodata, RiwayatPendidikan, Tugas } = require('../models');
 const EMAIL_USER = process.env.EMAIL_USER;
 const bcrypt = require('bcrypt');
 const { transporter } = require('../middlewares/transporter.middleware');
@@ -303,8 +303,142 @@ const deleteBiodata = async (req, res) => {
   }
 };
 
+const listTugas = async (req, res) => {
+  try {
+    const tugas = await Tugas.findAll({
+    });
+
+    res.status(200).json({ tugas });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Terjadi kesalahan' });
+  }
+};
+
+const tambahTugas = async (req, res) => {
+  const { judul_tugas, deskripsi_tugas, deadline, status } = req.body;
+  const userId = req.params.userId; // Mendapatkan userId dari parameter URL
+  const adminId = req.adminId; // Mendapatkan adminId dari token (middleware auth)
+
+  // Validasi inputan
+  if (!judul_tugas || !deskripsi_tugas || !deadline || !status) {
+    return res.status(400).json({ message: 'Semua field harus diisi' });
+  }
+
+  try {
+    // Memastikan mahasiswa dengan userId yang diberikan ada di database
+    const user = await Users.findByPk(userId); // Mencari mahasiswa berdasarkan userId
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Mahasiswa tidak ditemukan' });
+    }
+
+    // Menambahkan tugas yang dikaitkan dengan mahasiswa tertentu dan admin
+    const tugasBaru = await Tugas.create({
+      judul_tugas,
+      deskripsi_tugas,
+      deadline,
+      id_user: userId,  // Mengaitkan tugas dengan mahasiswa (userId)
+      id_admin: adminId, // Mengaitkan tugas dengan admin yang mengirimkan tugas
+      status,
+    });
+
+    // Mengirimkan response sukses
+    res.status(201).json({ message: 'Tugas berhasil ditambahkan', tugas: tugasBaru });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Terjadi kesalahan saat menambahkan tugas' });
+  }
+};
+
+
+const getTugasDetail = async (req, res) => {
+  const { tugasId } = req.params; // Mendapatkan tugasId dari parameter URL
+
+  try {
+    // Mencari tugas berdasarkan tugasId
+    const tugas = await Tugas.findByPk(tugasId);
+
+    if (!tugas) {
+      return res.status(404).json({ message: 'Tugas tidak ditemukan' });
+    }
+
+    // Mengirimkan response dengan data tugas
+    res.status(200).json({ message: 'Detail tugas berhasil ditemukan', tugas });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Terjadi kesalahan saat mengambil detail tugas' });
+  }
+};
+
+const editTugas = async (req, res) => {
+  const { tugasId } = req.params; // Mendapatkan tugasId dari parameter URL
+  const { judul_tugas, deskripsi_tugas, deadline, status } = req.body;
+  const adminId = req.adminId; // Mendapatkan adminId dari token (middleware auth)
+
+  // Validasi inputan
+  if (!judul_tugas || !deskripsi_tugas || !deadline || !status) {
+    return res.status(400).json({ message: 'Semua field harus diisi' });
+  }
+
+  try {
+    // Mencari tugas berdasarkan tugasId
+    const tugas = await Tugas.findByPk(tugasId);
+
+    if (!tugas) {
+      return res.status(404).json({ message: 'Tugas tidak ditemukan' });
+    }
+
+    // Memastikan tugas yang diupdate adalah tugas yang dibuat oleh admin yang sedang login
+    if (tugas.id_admin !== adminId) {
+      return res.status(403).json({ message: 'Anda tidak memiliki izin untuk mengedit tugas ini' });
+    }
+
+    // Memperbarui data tugas
+    tugas.judul_tugas = judul_tugas;
+    tugas.deskripsi_tugas = deskripsi_tugas;
+    tugas.deadline = deadline;
+    tugas.status = status;
+
+    // Simpan perubahan
+    await tugas.save();
+
+    // Mengirimkan response sukses
+    res.status(200).json({ message: 'Tugas berhasil diperbarui', tugas });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Terjadi kesalahan saat mengedit tugas' });
+  }
+};
+
+const hapusTugas = async (req, res) => {
+  const { tugasId } = req.params; // Mendapatkan tugasId dari parameter URL
+  const adminId = req.adminId; // Mendapatkan adminId dari token (middleware auth)
+
+  try {
+    // Mencari tugas berdasarkan tugasId
+    const tugas = await Tugas.findByPk(tugasId);
+
+    if (!tugas) {
+      return res.status(404).json({ message: 'Tugas tidak ditemukan' });
+    }
+
+    // Memastikan tugas yang dihapus adalah tugas yang dibuat oleh admin yang sedang login
+    if (tugas.id_admin !== adminId) {
+      return res.status(403).json({ message: 'Anda tidak memiliki izin untuk menghapus tugas ini' });
+    }
+
+    // Menghapus tugas
+    await tugas.destroy();
+
+    // Mengirimkan response sukses
+    res.status(200).json({ message: 'Tugas berhasil dihapus' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Terjadi kesalahan saat menghapus tugas' });
+  }
+};
 
 
 
-
-module.exports = { approveUser, rejectUser,tampilPendaftar, tampilUsers, detailUsers, hapusUser, listBiodata, editBiodata,deleteBiodata };
+module.exports = { approveUser, rejectUser,tampilPendaftar, tampilUsers, detailUsers, hapusUser, listBiodata, editBiodata,deleteBiodata, listTugas, tambahTugas,getTugasDetail,editTugas, hapusTugas };
