@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Biodata.belongsTo(models.Users, {
         foreignKey: 'id_users',
-        as: 'user',
+        as: 'users',
       });
       Biodata.hasMany(models.RiwayatPendidikan, {
         foreignKey: 'id_biodata',
