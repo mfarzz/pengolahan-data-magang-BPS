@@ -440,5 +440,29 @@ const hapusTugas = async (req, res) => {
 };
 
 
+const approveSertif = async (req,res) => {
+  try {
+    const { id } = req.params;
 
-module.exports = { approveUser, rejectUser,tampilPendaftar, tampilUsers, detailUsers, hapusUser, listBiodata, editBiodata,deleteBiodata, listTugas, tambahTugas,getTugasDetail,editTugas, hapusTugas };
+    // Update sertifikat mahasiswa menjadi "approved"
+    const updated = await Biodata.update(
+      { status_sertifikat: 'approved' }, // Kolom yang diupdate
+      { where: { id } } // Berdasarkan ID mahasiswa
+    );
+
+    if (updated[0] === 0) {
+      return res.status(404).json({ message: 'Mahasiswa tidak ditemukan' });
+    }
+
+    return res.status(200).json({
+      message: 'Sertifikat berhasil di-approve',
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+  }
+}
+
+
+
+module.exports = { approveUser, rejectUser,tampilPendaftar, tampilUsers, detailUsers, hapusUser, listBiodata, editBiodata,deleteBiodata, listTugas, tambahTugas,getTugasDetail,editTugas, hapusTugas ,approveSertif};

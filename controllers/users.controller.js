@@ -12,6 +12,7 @@ const crypto = require("crypto");
 const { transporter } = require("../middlewares/transporter.middleware");
 const fs = require("fs");
 const path = require("path");
+const { generateSertifikat } = require("../services/sertifikatService");
 
 const sendOtp = async (req, res) => {
   const userId = req.user.id;
@@ -483,6 +484,90 @@ const uploadTugas = async (req, res) => {
   }
 };
 
+
+const generateSertif = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Fetch user along with the id_pendaftar (foreign key) to get the Pendaftar data
+    const user = await Users.findOne({ 
+      where: { id: userId }, 
+      include: [{ model: Pendaftar, as: 'pendaftar' }] 
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan' });
+    }
+
+    // Fetch biodata using the id_users from the user
+    const biodata = await Biodata.findOne({ where: { id_users: user.id } });
+
+    if (!biodata) {
+      return res.status(404).json({ message: 'Mahasiswa tidak ditemukan' });
+    }
+
+    // Fetch pendaftar data from the included Pendaftar model
+    const pendaftar = user.pendaftar; // Access the alias here
+
+    if (!pendaftar) {
+      return res.status(404).json({ message: 'Pendaftar tidak ditemukan' });
+    }
+
+    if (biodata.status_sertifikat !== 'approved') {
+      return res.status(400).json({ message: 'Sertifikat belum di-approve' });
+    }
+
+    // Format tanggal function
+    const formatTanggal = (tanggal) => {
+      if (!tanggal) return '';
+      const date = new Date(tanggal);
+      return date.toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    };
+
+    // Ambil tahun dari jadwal_selesai
+    const jadwalSelesai = new Date(biodata.jadwal_selesai);
+    const tahunSelesai = jadwalSelesai.getFullYear(); // Ambil tahun dari jadwal_selesai
+
+    // Persiapkan data untuk template
+    const templateData = {
+      nama: biodata.nama_panggilan || '',
+      no_peserta: biodata.nomor_peserta || '',
+      jurusan: pendaftar.jurusan,
+      universitas: pendaftar.universitas,
+      tahun: tahunSelesai,  // Menggunakan tahun selesai
+      jadwal_mulai: formatTanggal(biodata.jadwal_mulai),
+      jadwal_selesai: formatTanggal(biodata.jadwal_selesai)
+    };
+
+    console.log('Generating certificate for:', biodata.nama_panggilan);
+    const pdfBuffer = await generateSertifikat(templateData); // Passing templateData here
+
+    if (!pdfBuffer || pdfBuffer.length === 0) {
+      throw new Error('Generated PDF is empty');
+    }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=sertifikat_${biodata.nama_panggilan}.pdf`);
+    res.send(pdfBuffer);
+
+  } catch (error) {
+    console.error('Error in certificate generation:', error);
+    return res.status(500).json({ 
+      message: 'Terjadi kesalahan pada server', 
+      error: error.message 
+    });
+  }
+};
+
+
+//Sampai approved dan download sertif di user
+
+
+
 module.exports = {
   sendOtp,
   resetPassword,
@@ -492,4 +577,5 @@ module.exports = {
   listTugasMahasiswa,
   getTugasDetail,
   uploadTugas,
+  generateSertif
 };
