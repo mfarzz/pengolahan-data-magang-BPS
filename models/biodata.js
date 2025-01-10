@@ -114,6 +114,10 @@ module.exports = (sequelize, DataTypes) => {
       unit_kerja: {
         type: DataTypes.ENUM('Umum', 'Teknis', 'IT'),
       },
+      status_sertifikat: {
+        type: DataTypes.ENUM('pending', 'approved'),
+        defaultValue: 'pending',
+      },
       sertifkat: {
         type: DataTypes.STRING,
       },

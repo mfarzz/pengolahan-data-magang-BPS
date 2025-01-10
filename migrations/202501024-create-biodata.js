@@ -95,6 +95,10 @@ module.exports = {
       unit_kerja: {
         type: Sequelize.ENUM('Umum', 'Teknis', 'IT')
       },
+      status_sertifikat: {
+        type: Sequelize.ENUM('pending', 'approved'),
+        defaultValue: 'pending',
+      },
       sertifkat: {
         type: Sequelize.STRING
       },

@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const { approveUser, rejectUser, tampilUsers, detailUsers, tampilPendaftar, hapusUser, listBiodata,editBiodata,deleteBiodata, listTugas, tambahTugas, hapusTugas, editTugas, getTugasDetail } = require('../controllers/admin.controller');
+const { approveUser, rejectUser, tampilUsers, detailUsers, tampilPendaftar, hapusUser, listBiodata,editBiodata,deleteBiodata, listTugas, tambahTugas, hapusTugas, editTugas, getTugasDetail, approveSertif } = require('../controllers/admin.controller');
 const { auth } = require('../middlewares/auth.middleware');
 
 router.put('/approve/:userId', auth('admin'), approveUser);
@@ -19,6 +19,8 @@ router.post('/add-tugas/:userId', auth('admin'), tambahTugas);
 router.get('/lihat-tugas/:tugasId', auth('admin'), getTugasDetail);
 router.put('/edit-tugas/:tugasId', auth('admin'), editTugas);
 router.delete('/delete-tugas/:tugasId', auth('admin'), hapusTugas);
+
+router.put('/approve-sertifikat/:id',auth('admin'),approveSertif);
 
 
 
